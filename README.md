@@ -185,13 +185,19 @@ git push origin main
 
 ## 6. Daily Development Workflow (Mandatory)
 
-Before starting work every day:
+Start a new feature:
 
 ```bash
 git checkout develop
 git pull origin develop
 git checkout feature/<your-feature>
-git merge develop
+```
+
+Finish a feature:
+
+```bash
+git push origin feature/<feature-name>
+# then create MR to develop
 ```
 
 This ensures your branch stays updated and prevents large merge conflicts.
