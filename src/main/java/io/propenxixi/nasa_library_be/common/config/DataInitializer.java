@@ -15,6 +15,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.propenxixi.nasa_library_be.book.dto.response.BookResponseDTO;
+import io.propenxixi.nasa_library_be.book.service.BookService;
 import io.propenxixi.nasa_library_be.user.dto.response.UserResponseDTO;
 import io.propenxixi.nasa_library_be.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +28,15 @@ public class DataInitializer implements ApplicationRunner {
     @Autowired
     private UserService userService;
     
+    @Autowired
+    private BookService bookService;
+    
     @Override
     public void run(ApplicationArguments args) throws Exception {
         try {
-            log.info("Starting automatic data initialization from Excel file...");
+            log.info("Starting automatic data initialization...");
             importExcelData();
+            importCsvData();
             log.info("Data initialization completed successfully!");
         } catch (Exception ex) {
             log.error("Error during data initialization: " + ex.getMessage(), ex);
@@ -43,7 +49,7 @@ public class DataInitializer implements ApplicationRunner {
             Resource resource = new ClassPathResource("static/Daftar-Siswa-Cleaned.xlsx");
             
             if (!resource.exists()) {
-                log.warn("Excel file not found in static folder. Skipping data initialization.");
+                log.warn("Excel file not found in static folder. Skipping user data initialization.");
                 return;
             }
             
@@ -108,6 +114,36 @@ public class DataInitializer implements ApplicationRunner {
         } catch (IOException ex) {
             log.error("Error reading Excel file: " + ex.getMessage(), ex);
             throw ex;
+        }
+    }
+    
+    private void importCsvData() throws IOException {
+        try {
+            // Load the Books Excel file from resources/static folder
+            Resource resource = new ClassPathResource("static/Daftar-Buku-Cleaned.xlsx");
+            
+            if (!resource.exists()) {
+                log.warn("Books Excel file not found in static folder. Skipping book data initialization.");
+                return;
+            }
+            
+            log.info("Found Books Excel file, starting import...");
+            
+            // Import the data directly using InputStream
+            List<BookResponseDTO> importedBooks = bookService.importBooksFromExcel(resource.getInputStream());
+            
+            log.info("Successfully imported " + importedBooks.size() + " books from Excel file");
+            
+            if (importedBooks.isEmpty()) {
+                log.warn("No new books were imported. All books in the Excel file may already exist in the database.");
+            }
+            
+        } catch (IOException ex) {
+            log.error("Error reading Books Excel file: " + ex.getMessage(), ex);
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Error importing Books Excel file: " + ex.getMessage(), ex);
+            ex.printStackTrace();
         }
     }
 }
