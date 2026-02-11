@@ -20,15 +20,11 @@ public class BookResponseDTO {
     private String author;
     
     private String isbnCode;
-    
-    private String publishedDate;
-    
+
     private Integer length;
     
     private String language;
-    
-    private String description;
-    
+
     private String imageUrl;
     
     private String shelfLocation;

@@ -14,15 +14,11 @@ public class UpdateBookRequestDTO {
     private String title;
     
     private String author;
-    
-    private String publishedDate;
-    
+
     private Integer length;
     
     private String language;
-    
-    private String description;
-    
+
     private String imageUrl;
     
     private String shelfLocation;

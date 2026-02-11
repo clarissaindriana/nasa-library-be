@@ -42,10 +42,8 @@ public class BookServiceImpl implements BookService {
                 .title(dto.getTitle())
                 .author(dto.getAuthor())
                 .isbnCode(dto.getIsbnCode())
-                .publishedDate(dto.getPublishedDate())
                 .length(dto.getLength())
                 .language(dto.getLanguage())
-                .description(dto.getDescription())
                 .imageUrl(dto.getImageUrl())
                 .shelfLocation(dto.getShelfLocation())
                 .totalCopies(dto.getTotalCopies() != null ? dto.getTotalCopies() : 0)
@@ -147,10 +145,8 @@ public class BookServiceImpl implements BookService {
         Book existingBook = book.get();
         existingBook.setTitle(dto.getTitle());
         existingBook.setAuthor(dto.getAuthor());
-        existingBook.setPublishedDate(dto.getPublishedDate());
         existingBook.setLength(dto.getLength());
         existingBook.setLanguage(dto.getLanguage());
-        existingBook.setDescription(dto.getDescription());
         existingBook.setImageUrl(dto.getImageUrl());
         existingBook.setShelfLocation(dto.getShelfLocation());
         existingBook.setTotalCopies(dto.getTotalCopies());
@@ -214,14 +210,14 @@ public class BookServiceImpl implements BookService {
                 }
                 
                 try {
-                    // Excel columns: Title(0), Author(s)(1), ISBN Code(2), Published Date(3), Length(4), Language(5), Desciption(6), Image(URL)(7)
+                    // Excel columns: Title(0), Author(s)(1), ISBN Code(2), Length(3), Language(4), Total Copies(5), Shelf Location(6), Image(URL)(7)
                     String title = getCellValueAsString(row.getCell(0));
                     String authors = getCellValueAsString(row.getCell(1));
                     String isbnCode = getCellValueAsString(row.getCell(2));
-                    String publishedDate = getCellValueAsString(row.getCell(3));
-                    String lengthStr = getCellValueAsString(row.getCell(4));
-                    String language = getCellValueAsString(row.getCell(5));
-                    String description = getCellValueAsString(row.getCell(6));
+                    String lengthStr = getCellValueAsString(row.getCell(3));
+                    String language = getCellValueAsString(row.getCell(4));
+                    String totalCopiesStr = getCellValueAsString(row.getCell(5));
+                    String shelfLocation = getCellValueAsString(row.getCell(6));
                     String imageUrl = getCellValueAsString(row.getCell(7));
                     
                     log.debug("Row " + i + ": title=" + title + ", isbn=" + isbnCode);
@@ -241,21 +237,29 @@ public class BookServiceImpl implements BookService {
                             length = null;
                         }
                     }
-                    
+
+                    Integer totalCopies = null;
+                    if (totalCopiesStr != null && !totalCopiesStr.trim().isEmpty()) {
+                        try {
+                            totalCopies = Integer.parseInt(totalCopiesStr.trim());
+                        } catch (NumberFormatException e) {
+                            log.debug("Could not parse totalCopies: " + totalCopiesStr);
+                            totalCopies = 0;
+                        }
+                    }
+
                     AddBookRequestDTO dto = new AddBookRequestDTO();
                     dto.setTitle(title.trim());
                     dto.setAuthor(authors != null ? authors.trim() : "");
                     dto.setIsbnCode(isbnCode.trim());
-                    dto.setPublishedDate(publishedDate != null ? publishedDate.trim() : "");
                     dto.setLength(length);
                     dto.setLanguage(language != null ? language.trim() : "");
-                    dto.setDescription(description != null ? description.trim() : "");
                     dto.setImageUrl(imageUrl != null ? imageUrl.trim() : "");
-                    
-                    // Set default values for library-specific fields
-                    dto.setShelfLocation("");
-                    dto.setTotalCopies(0);
-                    dto.setAvailableCopies(0);
+
+                    // Set values from XLSX and defaults for library-specific fields
+                    dto.setShelfLocation(shelfLocation != null ? shelfLocation.trim() : "");
+                    dto.setTotalCopies(totalCopies != null ? totalCopies : 0);
+                    dto.setAvailableCopies(totalCopies != null ? totalCopies : 0); // Set available to total initially
                     dto.setCondition("good");
                     
                     try {
@@ -311,10 +315,8 @@ public class BookServiceImpl implements BookService {
                 book.getTitle(),
                 book.getAuthor(),
                 book.getIsbnCode(),
-                book.getPublishedDate(),
                 book.getLength(),
                 book.getLanguage(),
-                book.getDescription(),
                 book.getImageUrl(),
                 book.getShelfLocation(),
                 book.getTotalCopies(),

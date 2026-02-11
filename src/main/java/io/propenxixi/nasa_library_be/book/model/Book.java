@@ -36,19 +36,13 @@ public class Book {
     
     @Column(name = "isbn_code", unique = true, nullable = false)
     private String isbnCode;
-    
-    @Column(name = "published_date")
-    private String publishedDate;
-    
+
     @Column(name = "length")
     private Integer length;
     
     @Column(name = "language")
     private String language;
-    
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
-    
+
     @Column(name = "image_url")
     private String imageUrl;
     
